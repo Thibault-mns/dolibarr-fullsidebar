@@ -1,0 +1,372 @@
+/* Copyright (C) 2026 TH Investissements / Matelas No Stress - GPL v3+
+ *
+ * FullSidebar - collapsible tree of every module in the left sidebar.
+ *
+ * Colours are taken from the design system tokens when the theme exposes them
+ * (--accent, --ink, --muted, --line, --surface, --radius-element, --font-family),
+ * and fall back to Dolibarr's own CSS variables - which already flip in dark mode -
+ * then to a hard coded value.
+ */
+
+.fsb {
+	/* Fallback on the link colour, not on the header background: in eldy dark mode the
+	   header background is a near-black grey, which would make the active entry and the
+	   module icons vanish. --colortextlink is adapted for both modes by the theme. */
+	--fsb-accent: var(--accent, var(--colortextlink, #3a5a78));
+	--fsb-ink: var(--ink, var(--colortext, #2b2b2b));
+	--fsb-muted: var(--muted, #7a8794);
+	--fsb-line: var(--line, var(--colorboxstatsborder, #e0e4ea));
+	--fsb-line-soft: var(--line-soft, rgba(128, 141, 155, 0.16));
+	--fsb-surface: var(--surface, var(--colorbackvmenu1, #ffffff));
+	--fsb-radius: var(--radius-element, 8px);
+	--fsb-accent-soft: rgba(58, 90, 120, 0.1);
+
+	display: block;
+	width: 100%;
+	box-sizing: border-box;
+	padding: 2px 0 12px 0;
+	font-family: var(--font-family, inherit);
+	font-size: 13px;
+	line-height: 1.35;
+	color: var(--fsb-ink);
+}
+
+/* color-mix keeps the soft tint in sync with whatever accent the theme defines.
+   Declared after the rgba() fallback so old engines keep the literal value. */
+@supports (background: color-mix(in srgb, red 10%, transparent)) {
+	.fsb {
+		--fsb-accent-soft: color-mix(in srgb, var(--fsb-accent) 12%, transparent);
+	}
+}
+
+.fsb .fsb-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.fsb .fsb-item {
+	margin: 0;
+	padding: 0;
+}
+
+/* One row = the link (icon + label) and, when there are children, the expander. */
+.fsb .fsb-row {
+	display: flex;
+	align-items: stretch;
+	gap: 2px;
+	border-radius: var(--fsb-radius);
+}
+
+.fsb .fsb-link {
+	flex: 1 1 auto;
+	min-width: 0;
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	box-sizing: border-box;
+	padding: 6px 6px 6px 7px;
+	border-radius: var(--fsb-radius);
+	color: var(--fsb-ink);
+	text-decoration: none;
+	overflow-wrap: anywhere;
+}
+
+.fsb a.fsb-link:hover,
+.fsb a.fsb-link:focus-visible {
+	background: var(--fsb-accent-soft);
+	color: var(--fsb-accent);
+	text-decoration: none;
+}
+
+.fsb .fsb-ic {
+	flex: 0 0 auto;
+	width: 16px;
+	text-align: center;
+	font-size: 12px;
+	color: var(--fsb-muted);
+	opacity: 0.9;
+}
+
+.fsb .fsb-tx {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+/* Placeholder keeping labels aligned when an entry has no FontAwesome prefix. Drawn
+   by CSS (.fsb-ic-dot) rather than printed as a span on every such entry: it is the
+   most common row of the tree. .fsb-dot is kept for the dot itself. */
+.fsb .fsb-ic-dot::before {
+	content: "";
+	display: inline-block;
+	width: 4px;
+	height: 4px;
+	border-radius: 50%;
+	background: currentColor;
+	opacity: 0.35;
+	vertical-align: middle;
+}
+.fsb .fsb-dot {
+	display: inline-block;
+	width: 4px;
+	height: 4px;
+	border-radius: 50%;
+	background: currentColor;
+	opacity: 0.35;
+	vertical-align: middle;
+}
+
+/* Expander ------------------------------------------------------------------ */
+/* The caret is the button's ::before (not a span printed in every button). */
+
+.fsb .fsb-tg {
+	flex: 0 0 auto;
+	width: 26px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	border: 0;
+	background: none;
+	border-radius: var(--fsb-radius);
+	color: var(--fsb-muted);
+	cursor: pointer;
+}
+
+.fsb .fsb-tg:hover,
+.fsb .fsb-tg:focus-visible {
+	background: var(--fsb-accent-soft);
+	color: var(--fsb-accent);
+}
+
+.fsb .fsb-tg::before {
+	content: "";
+	display: block;
+	width: 6px;
+	height: 6px;
+	border-right: 1.5px solid currentColor;
+	border-bottom: 1.5px solid currentColor;
+	transform: rotate(-45deg);
+	transition: transform 0.15s ease;
+}
+
+.fsb .fsb-open > .fsb-row > .fsb-tg::before {
+	transform: rotate(45deg);
+}
+
+/* Levels -------------------------------------------------------------------- */
+
+/* Module rows (depth 0) read as section headers. */
+.fsb .fsb-d0 > .fsb-row .fsb-link {
+	font-weight: 600;
+}
+
+.fsb .fsb-d0 > .fsb-row .fsb-ic {
+	color: var(--fsb-accent);
+	opacity: 1;
+	font-size: 13px;
+}
+
+.fsb .fsb-d0 + .fsb-d0 {
+	border-top: 1px solid var(--fsb-line-soft);
+}
+
+/* ~8px of indent per level, drawn with a guide line. */
+.fsb .fsb-sub {
+	margin-left: 13px;
+	padding-left: 8px;
+	border-left: 1px solid var(--fsb-line-soft);
+}
+
+.fsb .fsb-d1 > .fsb-row .fsb-link,
+.fsb .fsb-d2 > .fsb-row .fsb-link,
+.fsb .fsb-d3 > .fsb-row .fsb-link {
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+/* Deep entries step back visually, but stay readable: full muted grey only past
+   the third level, where entries are rare. */
+.fsb .fsb-d2 > .fsb-row .fsb-link {
+	opacity: 0.82;
+}
+
+.fsb .fsb-d3 > .fsb-row .fsb-link,
+.fsb .fsb-d4 > .fsb-row .fsb-link {
+	color: var(--fsb-muted);
+}
+
+/* States -------------------------------------------------------------------- */
+
+/* Module currently browsed. */
+.fsb .fsb-current > .fsb-row > .fsb-link {
+	color: var(--fsb-accent);
+}
+
+/* Page currently displayed. */
+.fsb .fsb-active > .fsb-row > .fsb-link,
+.fsb .fsb-active > .fsb-row > a.fsb-link:hover {
+	background: var(--fsb-accent-soft);
+	color: var(--fsb-accent);
+	font-weight: 600;
+}
+
+.fsb .fsb-active > .fsb-row > .fsb-link .fsb-ic {
+	color: var(--fsb-accent);
+	opacity: 1;
+}
+
+/* Entries shown only because FULLSIDEBAR_SHOW_UNAUTHORIZED is on. */
+.fsb .fsb-disabled > .fsb-row > .fsb-link {
+	color: var(--fsb-muted);
+	opacity: 0.6;
+	cursor: default;
+}
+
+/* Sidebar shell ------------------------------------------------------------- */
+
+/* .vmenu is 240px wide and floats; keep the tree inside it, never wider. */
+div.vmenu > .fsb,
+td.vmenu > .fsb {
+	max-width: 100%;
+}
+
+/* Desktop: the sidebar follows the page scroll, and scrolls on its own when the
+   tree is taller than the screen.
+
+   Markup printed by main.inc.php:  .side-nav > #id-left > div.vmenu > nav.fsb
+
+   ⚠ Why the sticky is on .side-nav and not on .fsb (as it was): an element can only
+   stick within its PARENT's box. The parent of .fsb is div.vmenu, which merely wraps
+   it - same height, so zero room to slide - and a sticky with no room does nothing.
+   .side-nav is the element both themes (eldy, bootstrap5) make sticky under their own
+   "sticky left menu" option (THEME_STICKY_TOPMENU = scrollleftmenu_after_mainpage):
+   the two declarations below are that option's rules, verbatim (top: 50px is the
+   theme's header height), so the layout is one Dolibarr already ships and tests -
+   not one invented here. Emitting them ourselves just means the behaviour no longer
+   depends on the user having found that setting.
+
+   ⚠ The previous `min-height: 100vh` on .side-nav / #id-container is gone on purpose:
+   a sticky element as tall as the viewport never has any reason to move, so it
+   silently defeated the theme's own sticky as well. The column is instead BOUNDED to
+   the viewport and scrolls internally - search form, bookmarks and tree together -
+   otherwise a tree taller than the screen would push the column past the viewport
+   and its bottom entries could never be reached. */
+/* Scoped on html.fsb-on, set by fullsidebar.js as soon as the tree (#fsb) is in the
+   DOM. The stylesheet is loaded on every page while the module is enabled - also when
+   the handler is switched off in the setup, for external users (MAIN_MENUFRONT_STANDARD)
+   or in MAIN_MENU_INVERT mode, where the stock eldy menu is rendered. Unscoped, these
+   layout rules would alter that stock menu.
+
+   Also scoped on the eldy theme (html.fsb-theme-eldy). In md, .side-nav is
+   position: fixed (out of the flow) and #id-container a table with table-layout:
+   fixed. Making .side-nav sticky put it back in the flow as a table cell, and the
+   fixed layout then gave the whole width to #id-right: the column shrank to 0px and
+   the sidebar looked empty. md's fixed column already scrolls on its own. */
+@media screen and (min-width: 768px) {
+	html.fsb-on.fsb-theme-eldy .side-nav {
+		position: sticky;
+		top: 50px;
+		display: block;
+		max-height: calc(100vh - 50px);
+		overflow-y: auto;
+		overflow-x: hidden;
+		overscroll-behavior: contain;
+		scrollbar-width: thin;
+	}
+
+	/* The theme only switches the container to a table under its own option; the
+	   sticky column needs it so #id-right keeps sitting beside it. Same rule the
+	   theme applies in that mode. */
+	html.fsb-on.fsb-theme-eldy #id-container {
+		display: table;
+		width: 100%;
+	}
+}
+
+/* Phones: eldy turns .side-nav into an overlay drawer. Bound the tree to the viewport
+   and scroll it on its own (a 200-entry list must not make the drawer taller than the
+   screen), and give rows a finger-sized hit area.
+
+   The bottom of the drawer was hard to reach: 100vh does not account for the browser's
+   own bars on mobile (the URL bar, the bottom toolbar), so the last entries sat under
+   them. 100dvh - the "dynamic" viewport - does; it is declared AFTER the vh fallback so
+   engines without dvh keep the old value. The bottom padding also absorbs the home
+   indicator / gesture zone of phones without a physical button
+   (env(safe-area-inset-bottom)). */
+@media screen and (max-width: 767px) {
+	.fsb {
+		max-height: calc(100vh - 70px);
+		max-height: calc(100dvh - 70px);
+		overflow-y: auto;
+		overflow-x: hidden;
+		overscroll-behavior: contain;
+		-webkit-overflow-scrolling: touch;
+		padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+		/* Keeps the auto-scrolled current entry clear of that bottom zone too. */
+		scroll-padding-bottom: 48px;
+	}
+
+	.fsb .fsb-link {
+		padding-top: 10px;
+		padding-bottom: 10px;
+	}
+
+	.fsb .fsb-tg {
+		width: 40px;
+	}
+
+	/* Wider drawer for the full tree (default theme drawer is ~200px, too narrow
+	   for long module labels on a phone). */
+	html.fsb-on.fsb-theme-eldy .side-nav {
+		width: 280px !important;
+		max-width: 85vw !important;
+	}
+}
+
+/* Breadcrumb in the freed top bar (rendered by fullsidebar.js when the top menu
+   is hidden by FULLSIDEBAR_HIDE_TOPMENU). */
+.topbar-breadcrumb {
+	display: flex;
+	align-items: center;
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	padding: 0 14px;
+	font-size: 13px;
+	/* The theme knows the text colour that reads on its header background. */
+	color: var(--colortextbackhmenu, rgba(255, 255, 255, 0.9));
+	letter-spacing: 0.2px;
+}
+.topbar-breadcrumb .bc-crumb {
+	color: var(--colortextbackhmenu, rgba(255, 255, 255, 0.85));
+	opacity: 0.85;
+	text-decoration: none;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	min-width: 0;
+}
+.topbar-breadcrumb a.bc-crumb {
+	cursor: pointer;
+}
+.topbar-breadcrumb a.bc-crumb:hover {
+	opacity: 1;
+	text-decoration: underline;
+}
+.topbar-breadcrumb .bc-current {
+	opacity: 1;
+	font-weight: 600;
+}
+.topbar-breadcrumb .bc-sep {
+	margin: 0 8px;
+	opacity: 0.45;
+	flex: 0 0 auto;
+}
+
+@media print {
+	.fsb {
+		display: none;
+	}
+}

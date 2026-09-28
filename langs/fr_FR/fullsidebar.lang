@@ -1,0 +1,37 @@
+# Module FullSidebar - fr_FR
+# ATTENTION : un % dans une valeur déclenche sprintf() dans Translate::transnoentitiesnoconv().
+# N'utiliser %s que sur les clés réellement appelées avec un argument.
+
+ModuleFullSidebarName=Barre latérale complète
+ModuleFullSidebarDesc=Menu de gauche affichant tous les modules et leurs sous-menus
+FullSidebarDescription=Menu de gauche affichant tous les modules et leurs sous-menus
+FullSidebarDescriptionLong=Remplace le menu de gauche contextuel de Dolibarr par un arbre pliable listant tous les modules et l'intégralité de leurs sous-menus, accessible depuis n'importe quelle page. Le menu du haut, le menu mobile et le thème restent inchangés.
+
+FullSidebarSetup=Configuration de la barre latérale complète
+FullSidebarNavLabel=Navigation complète
+
+FullSidebarEnabled=Activer la barre latérale complète
+FullSidebarEnabledHelp=Positionne la constante MAIN_MENU_STANDARD. Gestionnaire de menu actuellement actif : %s
+FullSidebarHideTopMenu=Masquer les entrées du menu du haut
+FullSidebarHideTopMenuHelp=La barre du haut reste en place avec le logo, la recherche, le bloc utilisateur et le bouton hamburger (indispensable pour ouvrir la barre latérale sur mobile) : seules les entrées de modules, redondantes avec la barre latérale, sont masquées.
+FullSidebarExpandAll=Tout déplier par défaut
+FullSidebarExpandAllHelp=Si non, seuls le module en cours et le chemin menant à la page affichée sont dépliés au chargement.
+FullSidebarRememberOpened=Mémoriser les branches ouvertes
+FullSidebarRememberOpenedHelp=Conserve dans le navigateur de chaque utilisateur les branches qu'il a dépliées.
+FullSidebarShowUnauthorized=Afficher les entrées non autorisées
+FullSidebarShowUnauthorizedHelp=Affiche en grisé les entrées pour lesquelles l'utilisateur n'a pas la permission, au lieu de les masquer.
+
+FullSidebarSidebarTitle=Barre latérale
+FullSidebarTopBarTitle=Barre du haut
+FullSidebarTopBarIntro=Options natives de Dolibarr (Accueil - Configuration - Affichage), reprises ici : en masquant les entrées du menu du haut, la barre se libère et ces outils viennent l'occuper. Elles restent des constantes du cœur, partagées avec le reste de Dolibarr.
+FullSidebarTopSearch=Recherche globale dans la barre du haut
+FullSidebarTopSearchHelp=Recommandé avec la barre latérale complète : le formulaire de recherche n'est alors plus monté en haut de la barre latérale, où il concurrence l'arbre des modules.
+FullSidebarTopQuickAdd=Bouton de création rapide
+FullSidebarTopQuickAddHelp=Ajoute un bouton « + » ouvrant un menu de création rapide (tiers, devis, facture, ...).
+FullSidebarTopImportFile=Lien d'import de fichier
+FullSidebarTopImportFileHelp=Ajoute une icône d'envoi de fichier. Cette option n'a pas d'écran de configuration dans Dolibarr.
+FullSidebarTopImportFileCustom=Une URL personnalisée est enregistrée et sera conservée : %s
+
+FullSidebarWarnNotRegistered=Le gestionnaire de menu du module n'est pas enregistré dans la configuration. Les parties de module (menus, CSS, JS) sont lues à l'ACTIVATION : désactivez puis réactivez le module FullSidebar dans Configuration - Modules.
+FullSidebarSetupNote=Le gestionnaire de menu est fourni par le module lui-même : aucun fichier du cœur de Dolibarr n'est modifié. Si le module est désactivé, Dolibarr revient automatiquement au menu précédent.
+FullSidebarBreadcrumb=Fil d'Ariane
