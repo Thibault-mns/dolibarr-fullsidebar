@@ -1,5 +1,7 @@
 # FullSidebar — complete left sidebar for Dolibarr
 
+![FullSidebar: the whole menu tree in the left sidebar, with the breadcrumb in the top bar](screenshot.png)
+
 Replaces Dolibarr's **contextual** left menu with a **collapsible tree listing every
 module and all of its submenus**, reachable from any page.
 

@@ -1,5 +1,7 @@
 # FullSidebar — barre latérale complète pour Dolibarr
 
+![FullSidebar : tout l'arbre des menus dans la barre latérale, avec le fil d'Ariane dans la barre du haut](screenshot.png)
+
 Remplace le menu de gauche **contextuel** de Dolibarr par un **arbre pliable listant
 tous les modules et l'intégralité de leurs sous-menus**, accessible depuis n'importe
 quelle page.
