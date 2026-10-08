@@ -39,6 +39,10 @@
   colonne, arbre qui s'élargissait). Ils suivent maintenant `.side-nav` (100 %, bloc,
   `border-box`) et, comme `.side-nav` lui-même, en `!important` pour ne pas dépendre de
   l'ordre de chargement des CSS du thème et des autres modules. Thèmes eldy et bootstrap5.
+- **Recherche en pilule : la liste de résultats s'ouvre sous la pilule.** La pilule était en
+  `position: static`, donc la liste, en position absolue, se calait sur le bloc d'outils entier
+  (ou la barre) et apparaissait loin à droite de la pilule. La pilule est maintenant la référence
+  de positionnement (`position: relative`).
 - **Recherche en pilule : largeur adaptée à l'écran (180 à 300 px) au lieu des 370 px du thème.**
   `#topmenu-global-search-dropdown .dropdown-menu` impose `width: 370px` ; avec les icônes, le bloc
   d'outils dépassait 650 px et ne laissait que quelques centaines de pixels au fil d'Ariane.
