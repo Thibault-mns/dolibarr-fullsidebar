@@ -320,10 +320,13 @@ class MenuManager
 		// 45px from the top on its own: a taller bar would overlap it.
 		$fixedheight = ((string) $conf->theme === 'eldy') ? ' height: 55px !important;' : '';
 		print 'header#id-top div.tmenudiv, header#id-top div.tmenu { display: flex !important; align-items: center !important;'.$fixedheight.' }'."\n";
+		// The theme reserves a fixed right padding on #tmenu_tooltip for the tools block, whatever
+		// its width; the breadcrumb is capped by fullsidebar.js instead (drawer layout excluded).
+		print 'html:not(.fsb-drawer) header#id-top div#tmenu_tooltip { padding-right: 0 !important; }'."\n";
 		// Promote the global search to a visible pill input in the freed top bar
 		// (instead of the loupe dropdown), so the bar is not empty.
 		print 'header#id-top #topmenu-global-search-dropdown > a.dropdown-toggle { display: none !important; }'."\n";
-		print 'header#id-top #topmenu-global-search-dropdown .dropdown-menu.dropdown-search { position: static !important; display: block !important; float: none !important; border: 0 !important; box-shadow: none !important; background: transparent !important; margin: 0 !important; padding: 0 !important; min-width: 240px !important; }'."\n";
+		print 'header#id-top #topmenu-global-search-dropdown .dropdown-menu.dropdown-search { position: static !important; display: block !important; float: none !important; border: 0 !important; box-shadow: none !important; background: transparent !important; margin: 0 !important; padding: 0 !important; width: clamp(180px, 20vw, 300px) !important; min-width: 0 !important; max-width: 300px !important; }'."\n";
 		print 'header#id-top #topmenu-global-search-dropdown .search-dropdown-header { position: relative !important; padding: 0 !important; }'."\n";
 		print 'header#id-top #topmenu-global-search-dropdown .search-dropdown-header::before { content: "\\f002"; font-family: "Font Awesome 5 Free", "FontAwesome"; font-weight: 900; position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--colortext, #9aa4b0); opacity: 0.55; font-size: 13px; pointer-events: none; }'."\n";
 		print 'header#id-top #topmenu-global-search-dropdown .dropdown-search-input { width: 100% !important; height: 34px !important; padding: 6px 14px 6px 34px !important; border: 1px solid var(--inputbordercolor, rgba(0,0,0,0.08)) !important; border-radius: 999px !important; background: var(--inputbackgroundcolor, #fff) !important; color: var(--colortext, #2b2b2b) !important; font-size: 13px !important; box-sizing: border-box !important; }'."\n";
@@ -808,6 +811,8 @@ class MenuManager
 			// The layout rules of fullsidebar.css (sticky column, wider drawer) are written
 			// for eldy's layout and scoped on it: md keeps its own fixed column.
 			.' data-fsb-theme="'.dol_escape_htmltag(preg_replace('/[^a-z0-9_-]/i', '', (string) $conf->theme)).'"'
+			.' data-fsb-click="'.dol_escape_htmltag(getDolGlobalString('FULLSIDEBAR_CLICK_MODE', 'arrow')).'"'
+			.' data-fsb-openlabel="'.dol_escape_htmltag($langs->transnoentities("FullSidebarOpenPage")).'"'
 			.' data-fsb-hidetop="'.(getDolGlobalInt('FULLSIDEBAR_HIDE_TOPMENU') ? '1' : '0').'"'
 			.' data-fsb-breadcrumb="'.dol_escape_htmltag($langs->trans("FullSidebarBreadcrumb")).'"'
 			.' aria-label="'.dol_escape_htmltag($langs->trans("FullSidebarNavLabel")).'">'."\n";

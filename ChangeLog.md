@@ -1,5 +1,55 @@
 # ChangeLog — FullSidebar
 
+## 1.6.0 — octobre 2026
+
+- **Option « Clic sur le libellé d'une branche »** (`FULLSIDEBAR_CLICK_MODE`), suite à un
+  retour de la communauté Dolibarr : aller chercher la petite flèche pour déplier un
+  sous-menu n'est pas optimal. Trois modes : `arrow` (défaut, comportement inchangé),
+  `title` (le libellé déplie, la petite flèche ouvre la page de l'entrée, avec un chevron
+  placé après le libellé pour l'état) et `dblclick` (clic = déplier, double-clic = ouvrir
+  la page). Ctrl/Cmd/Maj/Alt + clic ouvrent toujours le lien normalement ; une entrée sans
+  sous-menu ouvre toujours sa page. Le bouton de ce mode porte l'icône chaîne (`fa-link`).
+- **Tiroir mobile pleine largeur sous 768 px** (eldy et bootstrap5) : il faisait 280 px
+  (eldy) ou 200 px (bootstrap5) et laissait une bande vide à droite d'un écran de 425 px.
+  Avec bootstrap5, 333 px (90 % de l'écran au maximum) entre 768 et 900 px, où le thème
+  impose 200 px.
+- **Tiroir mobile : `#id-left` et `.vmenu` à 100 %** (eldy et bootstrap5). Ils prenaient la
+  largeur de leur contenu : étroits à l'ouverture, ils s'élargissaient dès qu'une branche
+  aux libellés plus longs était dépliée.
+- **Tiroir mobile eldy : les icônes de la barre du haut ne recouvrent plus le menu.** Le bloc
+  (recherche, création rapide, marque-pages, import, aide, utilisateur) était une boîte de
+  245 px de haut fixe dont les trois groupes s'empilaient et débordaient sur les premières
+  entrées. Il occupe maintenant toute la largeur sur une ligne qui passe à la suivante au
+  besoin. Le tiroir passe aussi en `box-sizing: border-box` : à 100 % plus ses marges
+  internes, il dépassait de l'écran.
+- **Tiroir mobile : le bas de l'arbre est de nouveau atteignable.** La hauteur de l'arbre
+  était bornée à `100dvh - 70px`, alors que le haut de l'arbre est en réalité plus bas
+  (barre du haut + bloc d'outils, ~130 px avec eldy) : les dernières entrées restaient
+  sous l'écran sans rien à faire défiler. La hauteur est maintenant mesurée par le JS
+  (écran moins position réelle de l'arbre) et recalculée au redimensionnement, à la
+  rotation et à l'ouverture ou la fermeture du tiroir.
+- **Tablette (768 px et plus) : le menu n'est plus affiché en permanence alors que le thème est
+  encore en mode tiroir.** Le passage au tiroir dépend du thème (eldy : nombre d'entrées du
+  menu du haut x 47 px + 130 px), pas d'un seuil fixe à 768 px. Les règles « ordinateur » et
+  « tiroir » ne reposent plus sur une media query mais sur la classe `fsb-drawer` posée par le
+  JS : thème en mode hamburger, ou écran de 767 px ou moins. L'arbre est limité à 95 % de la
+  largeur dans le tiroir, sinon il dépassait.
+- **Une seule largeur, portée par `.side-nav`.** `#id-left`, `div.vmenu` et l'arbre portaient chacun
+  leur règle de largeur et se désynchronisaient (cellule de tableau plus étroite que la
+  colonne, arbre qui s'élargissait). Ils suivent maintenant `.side-nav` (100 %, bloc,
+  `border-box`) et, comme `.side-nav` lui-même, en `!important` pour ne pas dépendre de
+  l'ordre de chargement des CSS du thème et des autres modules. Thèmes eldy et bootstrap5.
+- **Recherche en pilule : largeur adaptée à l'écran (180 à 300 px) au lieu des 370 px du thème.**
+  `#topmenu-global-search-dropdown .dropdown-menu` impose `width: 370px` ; avec les icônes, le bloc
+  d'outils dépassait 650 px et ne laissait que quelques centaines de pixels au fil d'Ariane.
+- **Barre du haut : la marge de droite réservée par le thème est supprimée** (menu du haut masqué,
+  hors tiroir). Elle valait 180 à 385 px quel que soit le bloc d'outils. Le fil d'Ariane est limité
+  à la place libre mesurée à l'écran entre son bord gauche et le bloc d'outils (qu'il soit posé par-dessus la
+  barre comme avec eldy, ou à côté dans une ligne flex comme avec bootstrap5).
+- **Colonne de largeur fixe avec le thème bootstrap5 sur ordinateur** (300 px) : la
+  colonne prenait la largeur de son contenu et s'élargissait à chaque ouverture d'une
+  branche aux libellés plus longs. Les libellés passent à la ligne.
+
 ## 1.5.1 — septembre 2026 — préparation Dolistore
 
 - **Le CSS modifiait le menu eldy natif quand l'arbre n'était pas rendu.** La feuille de

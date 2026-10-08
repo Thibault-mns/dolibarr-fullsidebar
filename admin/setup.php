@@ -118,6 +118,14 @@ if ($action === 'update') {
 		}
 	}
 
+	$clickmode = GETPOST('FULLSIDEBAR_CLICK_MODE', 'aZ09');
+	if (!in_array($clickmode, array('arrow', 'title', 'dblclick'), true)) {
+		$clickmode = 'arrow';
+	}
+	if (dolibarr_set_const($db, 'FULLSIDEBAR_CLICK_MODE', $clickmode, 'chaine', 0, '', $conf->entity) <= 0) {
+		$error++;
+	}
+
 	// Core constants filling the top bar. They belong to Dolibarr (Home > Setup >
 	// Display), NOT to this module: they are deliberately absent from $this->const, so
 	// insert_const() can never resurrect a value of ours on a disable/enable cycle, and
@@ -204,6 +212,17 @@ print '<td>'.$langs->trans("FullSidebarHideTopMenu");
 print '<br><span class="opacitymedium small">'.$langs->trans("FullSidebarHideTopMenuHelp").'</span>';
 print '</td>';
 print '<td class="center">'.$form->selectyesno('FULLSIDEBAR_HIDE_TOPMENU', getDolGlobalInt('FULLSIDEBAR_HIDE_TOPMENU'), 1).'</td>';
+print '</tr>';
+
+print '<tr class="oddeven">';
+print '<td>'.$langs->trans("FullSidebarClickMode");
+print '<br><span class="opacitymedium small">'.$langs->trans("FullSidebarClickModeHelp").'</span>';
+print '</td>';
+print '<td class="center">'.$form->selectarray('FULLSIDEBAR_CLICK_MODE', array(
+	'arrow' => $langs->trans("FullSidebarClickArrow"),
+	'title' => $langs->trans("FullSidebarClickTitle"),
+	'dblclick' => $langs->trans("FullSidebarClickDbl"),
+), getDolGlobalString('FULLSIDEBAR_CLICK_MODE', 'arrow'), 0, 0, 0, '', 0, 0, 0, '', 'minwidth200').'</td>';
 print '</tr>';
 
 print '<tr class="oddeven">';

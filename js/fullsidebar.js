@@ -83,7 +83,6 @@
 	 * @return {void}
 	 */
 	function setOpen(item, open, persist, opened) {
-		var toggle = item.querySelector(':scope > .fsb-row > .fsb-tg');
 		var sub = item.querySelector(':scope > .fsb-sub');
 		if (!sub) {
 			return;
@@ -91,8 +90,11 @@
 
 		item.classList.toggle('fsb-open', open);
 		sub.hidden = !open;
-		if (toggle) {
-			toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+		var control = item.closest('.fsb-click-title')
+			? item.querySelector(':scope > .fsb-row > .fsb-link')
+			: item.querySelector(':scope > .fsb-row > .fsb-tg');
+		if (control) {
+			control.setAttribute('aria-expanded', open ? 'true' : 'false');
 		}
 
 		if (persist) {
@@ -128,6 +130,61 @@
 	}
 
 	/**
+	 * Flag the page as laid out with the drawer: the theme shows its hamburger (its own
+	 * breakpoint, which depends on the number of top menu entries) or the screen is narrow.
+	 *
+	 * @return {void}
+	 */
+	function flagDrawer() {
+		var burger = document.querySelector('.menuhider');
+		var on = window.innerWidth <= 767
+			|| !!(burger && window.getComputedStyle(burger).display !== 'none');
+		document.documentElement.classList.toggle('fsb-drawer', on);
+	}
+
+	/**
+	 * Navigate to a menu link, honouring its target.
+	 *
+	 * @param {HTMLAnchorElement} link the a.fsb-link
+	 * @return {void}
+	 */
+	function followLink(link) {
+		if (link.target && link.target !== '_self') {
+			window.open(link.href, link.target);
+		} else {
+			window.location.href = link.href;
+		}
+	}
+
+	/**
+	 * Title mode: the label toggles the branch, so it owns the disclosure state and the
+	 * small button only opens the entry's own page. Entries without a page lose the button.
+	 *
+	 * @param {Element} nav the nav#fsb element
+	 * @return {void}
+	 */
+	function wireTitleMode(nav) {
+		var openLabel = nav.getAttribute('data-fsb-openlabel') || '';
+		Array.prototype.forEach.call(nav.querySelectorAll('.fsb-tg'), function (btn) {
+			var row = btn.parentElement;
+			var link = row.querySelector(':scope > .fsb-link');
+			var sub = row.parentElement.querySelector(':scope > .fsb-sub');
+			if (link && sub) {
+				link.setAttribute('aria-expanded', btn.getAttribute('aria-expanded') || 'false');
+				link.setAttribute('aria-controls', sub.id);
+			}
+			btn.removeAttribute('aria-expanded');
+			btn.removeAttribute('aria-controls');
+			btn.removeAttribute('aria-labelledby');
+			btn.setAttribute('aria-label', openLabel);
+			btn.title = openLabel;
+			if (!row.querySelector(':scope > a.fsb-link')) {
+				btn.hidden = true;
+			}
+		});
+	}
+
+	/**
 	 * Wire the tree.
 	 *
 	 * @return {void}
@@ -142,6 +199,14 @@
 		var expandAll = nav.classList.contains('fsb-expandall');
 		var key = storageKey(nav);
 		var opened = remember ? readOpened(key, nav) : {};
+		var mode = nav.getAttribute('data-fsb-click');
+		if (mode !== 'title' && mode !== 'dblclick') {
+			mode = 'arrow';
+		}
+		if (mode === 'title') {
+			nav.classList.add('fsb-click-title');
+			wireTitleMode(nav);
+		}
 
 		/**
 		 * Open every ancestor of an item, so a branch is never left open inside a
@@ -183,24 +248,53 @@
 		// inside a collapsed one and the tree reads as inconsistent.
 		Array.prototype.forEach.call(nav.querySelectorAll('.fsb-item.fsb-open'), openAncestors);
 
-		nav.addEventListener('click', function (ev) {
-			var toggle = ev.target.closest('.fsb-tg');
-			if (!toggle || !nav.contains(toggle)) {
-				return;
-			}
-			ev.preventDefault();
-
-			var item = toggle.closest('.fsb-item');
-			if (!item) {
-				return;
-			}
-
-			var willOpen = !item.classList.contains('fsb-open');
-			setOpen(item, willOpen, remember, opened);
+		function toggleItem(item) {
+			setOpen(item, !item.classList.contains('fsb-open'), remember, opened);
 			if (remember) {
 				writeOpened(key, opened);
 			}
+		}
+
+		function hasSub(item) {
+			return !!(item && item.querySelector(':scope > .fsb-sub'));
+		}
+
+		nav.addEventListener('click', function (ev) {
+			var toggle = ev.target.closest('.fsb-tg');
+			if (toggle && nav.contains(toggle)) {
+				ev.preventDefault();
+				var owner = toggle.closest('.fsb-item');
+				if (mode === 'title') {
+					var own = owner && owner.querySelector(':scope > .fsb-row > a.fsb-link');
+					if (own) {
+						followLink(own);
+					}
+				} else if (owner) {
+					toggleItem(owner);
+				}
+				return;
+			}
+
+			var plain = ev.button === 0 && !ev.ctrlKey && !ev.metaKey && !ev.shiftKey && !ev.altKey;
+			var title = ev.target.closest('.fsb-link');
+			if (mode === 'arrow' || !plain || !title || !nav.contains(title)) {
+				return;
+			}
+			var item = title.closest('.fsb-item');
+			if (hasSub(item)) {
+				ev.preventDefault();
+				toggleItem(item);
+			}
 		});
+
+		if (mode === 'dblclick') {
+			nav.addEventListener('dblclick', function (ev) {
+				var link = ev.target.closest('a.fsb-link');
+				if (link && nav.contains(link) && hasSub(link.closest('.fsb-item'))) {
+					followLink(link);
+				}
+			});
+		}
 
 		// Bring the current page into view when the sidebar is taller than the screen.
 		//
@@ -218,7 +312,59 @@
 			}
 		}
 
+		// Phone drawer: the CSS bounds the tree to 100dvh minus a fixed offset, but the
+		// real offset (top bar + the tools block the theme keeps above the tree) varies
+		// by theme and content. Too small an offset and the last entries sit below the
+		// screen with nothing left to scroll, so the height is measured instead.
+		function fitHeight() {
+			if (!document.documentElement.classList.contains('fsb-drawer')) {
+				nav.style.maxHeight = '';
+				return;
+			}
+			if (nav.offsetParent === null) {
+				return;
+			}
+			var top = Math.max(nav.getBoundingClientRect().top, 0);
+			nav.style.maxHeight = Math.max(160, window.innerHeight - top - 8) + 'px';
+		}
+		// The theme keeps a fixed padding on the right of the top bar for the tools block
+		// (180 to 385px depending on the tools enabled), whatever its real width: the CSS
+		// drops it with the top entries hidden. The breadcrumb is capped to the room left
+		// between its own left edge and the tools block, measured on screen: that holds
+		// whether the block is laid over the bar (eldy) or sits beside it in a flex row.
+		var tools = document.querySelector('header#id-top .login_block');
+		function fitTopBar() {
+			var bc = document.querySelector('.topbar-breadcrumb');
+			if (nav.getAttribute('data-fsb-hidetop') !== '1' || !tools || !bc) {
+				return;
+			}
+			if (document.documentElement.classList.contains('fsb-drawer') || !tools.offsetWidth) {
+				bc.style.maxWidth = '';
+				return;
+			}
+			var free = tools.getBoundingClientRect().left - bc.getBoundingClientRect().left - 12;
+			bc.style.maxWidth = Math.max(free, 120) + 'px';
+		}
+
+		function refresh() {
+			flagDrawer();
+			fitHeight();
+			fitTopBar();
+			fitBreadcrumb();
+		}
+		refresh();
+		if (window.ResizeObserver && tools) {
+			new ResizeObserver(fitTopBar).observe(tools);
+		}
+		window.addEventListener('resize', refresh);
+		window.addEventListener('orientationchange', refresh);
+		window.addEventListener('load', refresh);
+		if (window.MutationObserver) {
+			new MutationObserver(refresh).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+		}
+
 		renderBreadcrumb();
+		refresh();
 	}
 
 	/**
@@ -319,6 +465,52 @@
 				a.href = c.href;
 				a.textContent = c.text;
 				bc.appendChild(a);
+			}
+		}
+
+		if (window.ResizeObserver && !bc.fsbObserved) {
+			bc.fsbObserved = true;
+			new ResizeObserver(fitBreadcrumb).observe(bc);
+		}
+		fitBreadcrumb();
+	}
+
+	/**
+	 * Make the breadcrumb fit its box: when it overflows, middle crumbs are replaced by a
+	 * single ellipsis (first and last stay). Squeezing every crumb equally, which is what
+	 * flex shrinking does, leaves "A... O... T... L...".
+	 *
+	 * @return {void}
+	 */
+	function fitBreadcrumb() {
+		var bc = document.querySelector('.topbar-breadcrumb');
+		if (!bc) {
+			return;
+		}
+		var gap = bc.querySelector('.bc-gap');
+		if (gap) {
+			gap.parentNode.removeChild(gap);
+		}
+		var nodes = Array.prototype.slice.call(bc.children);
+		nodes.forEach(function (n) { n.classList.remove('bc-hidden'); });
+
+		// children are crumb, separator, crumb, separator, ..., crumb
+		var count = (nodes.length + 1) / 2;
+		if (count < 3 || bc.scrollWidth <= bc.clientWidth) {
+			return;
+		}
+
+		gap = document.createElement('span');
+		gap.className = 'bc-gap bc-crumb';
+		gap.textContent = '\u2026';
+		bc.insertBefore(gap, nodes[2]);
+
+		// First step hides crumb 1 only (its separator now follows the ellipsis); the next
+		// ones hide the crumb and the separator before it.
+		for (var k = 1; k < count - 1 && bc.scrollWidth > bc.clientWidth; k++) {
+			nodes[2 * k].classList.add('bc-hidden');
+			if (k > 1) {
+				nodes[2 * k - 1].classList.add('bc-hidden');
 			}
 		}
 	}
@@ -433,6 +625,7 @@
 		var fsb = document.getElementById('fsb');
 		if (fsb) {
 			document.documentElement.classList.add('fsb-on');
+			flagDrawer();
 			// Theme flag (fsb-theme-eldy, fsb-theme-md...): the column layout rules only
 			// apply to the theme they were written for.
 			var theme = (fsb.getAttribute('data-fsb-theme') || '').replace(/[^a-z0-9_-]/gi, '');

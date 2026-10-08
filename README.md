@@ -126,6 +126,7 @@ On a card page (`/compta/facture/card.php?id=12`) no menu url matches; the sessi
 | `MAIN_MENU_STANDARD` | `fullsidebar_menu.php` | Active handler (set on activation) |
 | `FULLSIDEBAR_HIDE_TOPMENU` | `0` | Hides the top menu entries (bar, logo and hamburger stay) |
 | `FULLSIDEBAR_EXPAND_ALL` | `0` | Expand everything on load instead of the current path only |
+| `FULLSIDEBAR_CLICK_MODE` | `arrow` | Click on the label of a branch: `arrow` opens the page (small arrow expands), `title` expands (small arrow opens the page), `dblclick` expands on click and opens the page on double click |
 | `FULLSIDEBAR_REMEMBER_OPENED` | `1` | Remembers opened branches (localStorage, per browser, per user and per instance) |
 | `FULLSIDEBAR_SHOW_UNAUTHORIZED` | `0` | Shows unauthorised entries greyed out instead of hiding them |
 | `FULLSIDEBAR_PREVIOUS_MENU` | — | Handler restored when the module is disabled |

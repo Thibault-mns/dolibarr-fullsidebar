@@ -131,6 +131,7 @@ groupe.
 | `MAIN_MENU_STANDARD` | `fullsidebar_menu.php` | Gestionnaire actif (posé à l'activation) |
 | `FULLSIDEBAR_HIDE_TOPMENU` | `0` | Masque les entrées du menu du haut (barre, logo et hamburger conservés) |
 | `FULLSIDEBAR_EXPAND_ALL` | `0` | Tout déplier au chargement au lieu du seul chemin courant |
+| `FULLSIDEBAR_CLICK_MODE` | `arrow` | Clic sur le libellé d'une branche : `arrow` ouvre la page (la petite flèche déplie), `title` déplie (la petite flèche ouvre la page), `dblclick` déplie au clic et ouvre la page au double-clic |
 | `FULLSIDEBAR_REMEMBER_OPENED` | `1` | Mémorise les branches ouvertes (localStorage, par navigateur, par utilisateur et par instance) |
 | `FULLSIDEBAR_SHOW_UNAUTHORIZED` | `0` | Affiche en grisé les entrées non autorisées au lieu de les masquer |
 | `FULLSIDEBAR_PREVIOUS_MENU` | — | Gestionnaire à restaurer à la désactivation |

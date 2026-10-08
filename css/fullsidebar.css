@@ -154,6 +154,42 @@
 	transform: rotate(45deg);
 }
 
+/* Click mode "title": the label toggles the branch (caret after the label), the small
+   button opens the entry's own page. */
+.fsb.fsb-click-title .fsb-tg::before,
+.fsb.fsb-click-title .fsb-open > .fsb-row > .fsb-tg::before {
+	content: "\f0c1";
+	font-family: "Font Awesome 5 Free";
+	font-weight: 900;
+	width: auto;
+	height: auto;
+	border: 0;
+	transform: none;
+	font-size: 12px;
+	line-height: 1;
+}
+
+.fsb.fsb-click-title .fsb-link[aria-expanded]::after {
+	content: "";
+	flex: 0 0 auto;
+	width: 6px;
+	height: 6px;
+	margin-left: auto;
+	border-right: 1.5px solid currentColor;
+	border-bottom: 1.5px solid currentColor;
+	color: var(--fsb-muted);
+	transform: rotate(-45deg);
+	transition: transform 0.15s ease;
+}
+
+.fsb.fsb-click-title .fsb-link[aria-expanded="true"]::after {
+	transform: rotate(45deg);
+}
+
+.fsb.fsb-click-title .fsb-link[aria-expanded] {
+	cursor: pointer;
+}
+
 /* Levels -------------------------------------------------------------------- */
 
 /* Module rows (depth 0) read as section headers. */
@@ -263,28 +299,30 @@ td.vmenu > .fsb {
    fixed. Making .side-nav sticky put it back in the flow as a table cell, and the
    fixed layout then gave the whole width to #id-right: the column shrank to 0px and
    the sidebar looked empty. md's fixed column already scrolls on its own. */
-@media screen and (min-width: 768px) {
-	html.fsb-on.fsb-theme-eldy .side-nav {
-		position: sticky;
-		top: 50px;
-		display: block;
-		max-height: calc(100vh - 50px);
-		overflow-y: auto;
-		overflow-x: hidden;
-		overscroll-behavior: contain;
-		scrollbar-width: thin;
-	}
-
-	/* The theme only switches the container to a table under its own option; the
-	   sticky column needs it so #id-right keeps sitting beside it. Same rule the
-	   theme applies in that mode. */
-	html.fsb-on.fsb-theme-eldy #id-container {
-		display: table;
-		width: 100%;
-	}
+html.fsb-on:not(.fsb-drawer).fsb-theme-eldy .side-nav {
+	position: sticky;
+	top: 50px;
+	display: block;
+	max-height: calc(100vh - 50px);
+	overflow-y: auto;
+	overflow-x: hidden;
+	overscroll-behavior: contain;
+	scrollbar-width: thin;
 }
 
-/* Phones: eldy turns .side-nav into an overlay drawer. Bound the tree to the viewport
+/* The theme only switches the container to a table under its own option; the
+   sticky column needs it so #id-right keeps sitting beside it. Same rule the
+   theme applies in that mode. */
+html.fsb-on:not(.fsb-drawer).fsb-theme-eldy #id-container {
+	display: table;
+	width: 100%;
+}
+
+/* html.fsb-drawer is set by fullsidebar.js when the theme shows its hamburger (the
+   drawer layout, whose breakpoint depends on the theme and the number of top entries)
+   or when the screen is 767px or less - a fixed media query left tablets in between.
+
+   Drawer: eldy turns .side-nav into an overlay drawer. Bound the tree to the viewport
    and scroll it on its own (a 200-entry list must not make the drawer taller than the
    screen), and give rows a finger-sized hit area.
 
@@ -294,34 +332,99 @@ td.vmenu > .fsb {
    engines without dvh keep the old value. The bottom padding also absorbs the home
    indicator / gesture zone of phones without a physical button
    (env(safe-area-inset-bottom)). */
-@media screen and (max-width: 767px) {
-	.fsb {
-		max-height: calc(100vh - 70px);
-		max-height: calc(100dvh - 70px);
-		overflow-y: auto;
-		overflow-x: hidden;
-		overscroll-behavior: contain;
-		-webkit-overflow-scrolling: touch;
-		padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
-		/* Keeps the auto-scrolled current entry clear of that bottom zone too. */
-		scroll-padding-bottom: 48px;
+html.fsb-on.fsb-drawer .fsb {
+	max-height: calc(100vh - 70px);
+	max-height: calc(100dvh - 70px);
+	overflow-y: auto;
+	overflow-x: hidden;
+	overscroll-behavior: contain;
+	-webkit-overflow-scrolling: touch;
+	padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+	/* Keeps the auto-scrolled current entry clear of that bottom zone too. */
+	scroll-padding-bottom: 48px;
+}
+
+html.fsb-on.fsb-drawer .fsb .fsb-link {
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+html.fsb-on.fsb-drawer .fsb .fsb-tg {
+	width: 40px;
+}
+
+/* Full width drawer: the default one (~200px) is too narrow for long module
+   labels, and a fixed 280px left an empty strip on 400px+ phones. */
+html.fsb-on.fsb-drawer.fsb-theme-eldy .side-nav,
+html.fsb-on.fsb-drawer.fsb-theme-bootstrap5 .side-nav {
+	width: 100% !important;
+	max-width: 100% !important;
+}
+
+/* eldy phone layout: the block of top-bar tools is a 245px box of fixed height with
+   its three groups (tools, other, user) stacked, so with the extra icons they ran
+   past the 75px kept above the tree and sat on top of the first entries. One wrapping
+   row over the whole width instead; the collapsed state keeps its own display: none. */
+html.fsb-on.fsb-drawer.fsb-theme-eldy body:not(.sidebar-collapse) div.login_block {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	box-sizing: border-box;
+	width: 100%;
+	min-width: 0;
+	max-width: 100%;
+	height: auto;
+	padding: 6px 10px;
+}
+
+html.fsb-on.fsb-drawer.fsb-theme-eldy div.login_block div.login_block_tools,
+html.fsb-on.fsb-drawer.fsb-theme-eldy div.login_block div.login_block_other,
+html.fsb-on.fsb-drawer.fsb-theme-eldy div.login_block div.login_block_user {
+	clear: none;
+	width: auto;
+	min-width: 0;
+	margin: 0;
+}
+
+/* bootstrap5 desktop: the column is sized by its content, so it widened each time a
+   branch with longer labels was opened. Fixed width instead, labels wrap. */
+@media screen and (min-width: 901px) {
+	html.fsb-on.fsb-theme-bootstrap5 .side-nav {
+		flex: 0 0 300px !important;
+		width: 300px !important;
+		max-width: 300px !important;
+	}
+}
+
+/* bootstrap5 theme: its drawer is forced to 200px (up to 900px), too narrow for the tree. */
+@media screen and (min-width: 768px) and (max-width: 900px) {
+	html.fsb-on:not(.fsb-drawer).fsb-theme-bootstrap5 .side-nav {
+		width: 333px !important;
+		max-width: 90vw !important;
 	}
 
-	.fsb .fsb-link {
-		padding-top: 10px;
-		padding-bottom: 10px;
-	}
+}
 
-	.fsb .fsb-tg {
-		width: 40px;
-	}
+/* One width, defined on .side-nav only (the rules above, per layout); everything between it
+   and the tree follows it. Each of #id-left, div.vmenu and the tree used to carry its own
+   width, and they drifted apart - #id-left stayed content-sized inside a fixed column, the
+   tree grew when a longer branch was opened. !important: these elements are sized by the
+   theme and by other modules' CSS, and the layout must not depend on their load order.
+   eldy and bootstrap5 only: md positions its own fixed column. */
+html.fsb-on:is(.fsb-theme-eldy, .fsb-theme-bootstrap5) .side-nav {
+	box-sizing: border-box !important;
+}
 
-	/* Wider drawer for the full tree (default theme drawer is ~200px, too narrow
-	   for long module labels on a phone). */
-	html.fsb-on.fsb-theme-eldy .side-nav {
-		width: 280px !important;
-		max-width: 85vw !important;
-	}
+html.fsb-on:is(.fsb-theme-eldy, .fsb-theme-bootstrap5) #id-left,
+html.fsb-on:is(.fsb-theme-eldy, .fsb-theme-bootstrap5) div.vmenu,
+html.fsb-on:is(.fsb-theme-eldy, .fsb-theme-bootstrap5) div.vmenu > .fsb {
+	display: block !important;
+	float: none !important;
+	width: 100% !important;
+	min-width: 0 !important;
+	max-width: 100% !important;
+	box-sizing: border-box !important;
 }
 
 /* Breadcrumb in the freed top bar (rendered by fullsidebar.js when the top menu
@@ -347,6 +450,16 @@ td.vmenu > .fsb {
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	min-width: 0;
+}
+.topbar-breadcrumb a.bc-crumb,
+.topbar-breadcrumb .bc-gap {
+	flex: 0 0 auto;
+}
+.topbar-breadcrumb .bc-current {
+	flex: 0 1 auto;
+}
+.topbar-breadcrumb .bc-hidden {
+	display: none;
 }
 .topbar-breadcrumb a.bc-crumb {
 	cursor: pointer;

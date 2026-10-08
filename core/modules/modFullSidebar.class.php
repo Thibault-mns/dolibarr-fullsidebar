@@ -58,7 +58,7 @@ class modFullSidebar extends DolibarrModules
 		$this->descriptionlong = "FullSidebarDescriptionLong";
 		$this->editor_name = 'TH Investissements / Matelas No Stress';
 		$this->editor_url = 'https://github.com/Thibault-mns';
-		$this->version = '1.5.1';
+		$this->version = '1.6.0';
 		$this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
 		$this->picto = 'fa-bars';
 
@@ -104,6 +104,10 @@ class modFullSidebar extends DolibarrModules
 			[
 				'FULLSIDEBAR_REMEMBER_OPENED', 'chaine', '1',
 				'Remember the branches the user opened (browser local storage)', 0, 'current', 0,
+			],
+			[
+				'FULLSIDEBAR_CLICK_MODE', 'chaine', 'arrow',
+				'What a click on the label of a branch does: arrow, title or dblclick', 0, 'current', 0,
 			],
 			[
 				'FULLSIDEBAR_HIDE_TOPMENU', 'chaine', '0',
